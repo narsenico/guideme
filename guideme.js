@@ -55,35 +55,59 @@
     }
 
     function setElementPosition(element, stepTarget) {
-        var stepRect = stepTarget.getBoundingClientRect();
-        var isTop = stepRect.top <= stepRect.bottom;
-        var isLeft = stepRect.left <= stepRect.right;
-        var margin = 10;
-
-        //element.attributes['title'].value = stepRect.top
-
-        if (isTop) {
-        	element.classList.add('top');
-            element.style.top = (stepRect.bottom + margin) + 'px';
-            element.style.bottom = '';
-        } else {
-        	element.classList.add('bottom');
-            element.style.bottom = (stepRect.top + margin) + 'px';
+        if (stepTarget === 'center') {
+            element.setAttribute('data-guideme-side', 'center');
             element.style.top = '';
-        }
-        if (isLeft) {
-        	element.classList.add('left');
-            element.style.left = (stepRect.left + margin) + 'px';
-            element.style.right = '';
-        } else {
-        	element.classList.add('right');
-            element.style.right = (stepRect.right - margin) + 'px';
             element.style.left = '';
+            return;
+        } else {
+            var stepRect = stepTarget.getBoundingClientRect();
+            var isTop = stepRect.top <= stepRect.bottom;
+            var isLeft = stepRect.left <= stepRect.right;
+            var margin = 10;
+            var side;
+
+            if (isTop) {
+                side = 'top';
+                element.style.top = (stepRect.bottom + margin) + 'px';
+                element.style.bottom = '';
+            } else {
+                side = 'bottom';
+                element.style.bottom = (stepRect.top + margin) + 'px';
+                element.style.top = '';
+            }
+            if (isLeft) {
+                side += ' left';
+                element.style.left = (stepRect.left + margin) + 'px';
+                element.style.right = '';
+            } else {
+                side += ' right';
+                element.style.right = (stepRect.right - margin) + 'px';
+                element.style.left = '';
+            }
+            element.setAttribute('data-guideme-side', side);
         }
     }
 
     function nvl(text, def) {
-    	return !text || text.length === 0 ? def : text;
+        return !text || text.length === 0 ? def : text;
+    }
+
+    function stepComparer(stepA, stepB) {
+        if (!stepA.order) return 1;
+        if (!stepB.order) return -1;
+        return (+stepA.order || 0) - (+stepB.order || 0);
+    }
+
+    function elementToStep(element, index) {
+        return {
+            "el": element,
+            // se il valore dell'attributo data-guideme è vuoto uso title
+            "content": nvl(element.attributes['data-guideme'].value,
+                element.title),
+            // se non è specificato l'ordine uso l'indice
+            "order": element.getAttribute('data-guideme-step') || index + 1
+        }
     }
 
     var defaultOptions = {
@@ -91,8 +115,8 @@
         classes: null,
         showOverlay: true,
         buttons: [
-        	{ "text": "prev", "action": "prev" },
-        	{ "text": "next", "action": "next" }
+            { "text": "prev", "action": "prev" },
+            { "text": "next", "action": "next" }
         ]
     };
 
@@ -102,15 +126,15 @@
      * Crea una guida creando uno step per tutti gli elementi con attributo data-guideme.
      *
      * @param      {String|jQuery|HTMLElement}  target   Opzionale, l'elemento dal quale partire a cercare i tag 
-     * 													 con attributo data-guideme
+     *                                                   con attributo data-guideme
      * @param      {Object}  options  Opzionale
      * @return     {Object}  ritorna una istanza di guideme
      */
     function guideme(target, options) {
         var elBody = document.querySelector('body'),
             elTarget = parseElemnt(target, elBody),
-            elOverloay, elStepList,
-            elDialog, elDialogTitle, elDialogBody, elDialogFooter;
+            elOverloay, elDialog, elDialogTitle, elDialogBody, elDialogFooter,
+            stepList = [];
 
         if (!elTarget) {
             // se è un oggetto presumo che si tratti delle opzioni
@@ -144,21 +168,23 @@
         elDialogBody = elDialog.querySelector('.guideme-body');
         elDialogFooter = elDialog.querySelector('.guideme-footer');
         options.buttons.map(function(btn) {
-        	var elButton = document.createElement('button');
-        	elButton.className = 'guideme-button';
-        	elButton.innerHTML = btn.text;
-        	elButton.onclick = function() {
-				performAction((btn.action || '').toString().toUpperCase());
-        	};
-        	return elButton;
+            var elButton = document.createElement('button');
+            elButton.className = 'guideme-button';
+            elButton.innerHTML = btn.text;
+            elButton.onclick = function() {
+                performAction((btn.action || '').toString().toUpperCase());
+            };
+            return elButton;
         }).forEach(function(element) {
-        	elDialogFooter.appendChild(element);
+            elDialogFooter.appendChild(element);
         });
         options.attachTo.appendChild(elDialog);
 
         // cerco tutti gli elementi con l'attributo data-guideme
-        // TODO: ordinarli per [data-guideme-step]
-        elStepList = elTarget.querySelectorAll('[data-guideme]');
+        var elStepList = elTarget.querySelectorAll('[data-guideme]');
+        for (var ii = 0; ii < elStepList.length; ii++) {
+            stepList.push(elementToStep(elStepList[ii], ii));
+        }
 
         function onKeyUp(event) {
             var code = event.keyCode || event.which;
@@ -171,13 +197,13 @@
                     performAction('PREV')
                     break;
                 case 27: // esc
-                	performAction('DONE')
-                	break;
+                    performAction('DONE')
+                    break;
             }
         }
 
         function performAction(action) {
-        	switch (action) {
+            switch (action) {
                 case 'NEXT':
                     showStep((+showStep.previous || 0) + 1);
                     break;
@@ -185,41 +211,41 @@
                     showStep((+showStep.previous || 0) - 1);
                     break;
                 case 'DONE':
-                	done();
-                	break;        		
-        	}
+                    done();
+                    break;
+            }
         }
 
         function showStep(index) {
-        	// TODO: invece di accedere direttamente a elStepList
-        	// 	usare un wrapper in modo che si possano aggiungere step liberamente
-        	// 	senza passare da un HTMLElement
-
-        	if (index < 0) return;
+            if (index < 0) return;
             // pulisco il tag dello step precedente
             if (!isNaN(showStep.previous)) {
                 cleanStepElement(+showStep.previous);
             }
             // se non ci sono più step da mostrare termino la guida
-            if (index >= elStepList.length) {
+            if (index >= stepList.length) {
                 done();
                 return;
             }
 
-            var elStep = elStepList[index];
-            // se il valore dell'attributo data-guideme è vuoto uso title
-            var content = nvl(elStep.attributes['data-guideme'].value, 
-            	elStep.title);
-            elStep.classList.add('guideme-step-target');
-            // posiziono il dialogo rispetto al tag di riferimento
-            setElementPosition(elDialog, elStep);
-            elDialogBody.innerHTML = content;
+            var step = stepList[index];
+            // TODO: se non c'è el mostrare il dialog al centro
+            if (step.el) {
+                step.el.classList.add('guideme-step-target');
+                // posiziono il dialogo rispetto al tag di riferimento
+                setElementPosition(elDialog, step.el);
+            } else {
+                setElementPosition(elDialog, 'center');
+            }
+            elDialogBody.innerHTML = step.content;
 
             showStep.previous = index;
         }
 
         function cleanStepElement(index) {
-            elStepList[index].classList.remove('guideme-step-target');
+            if (stepList[index].el) {
+                stepList[index].el.classList.remove('guideme-step-target');
+            }
         }
 
         // gestisco gli eventi per la navigazione
@@ -233,19 +259,28 @@
 
         function done() {
             cleanEvents();
-            options.attachTo.classList.remove('guideme');
+            if (!isNaN(showStep.previous)) {
+                cleanStepElement(+showStep.previous);
+            }
+            options.attachTo.classList.remove('guideme-show');
         }
 
         return {
+            addStep: function(step) {
+                // TODO: accettare stringhe e oggetti "step"
+                stepList.push(step);
+                return this;
+            },
             start: function(initialStep) {
+                stepList.sort(stepComparer);
                 setupEvents();
                 showStep(+initialStep || 0)
-                options.attachTo.classList.add('guideme');
+                options.attachTo.classList.add('guideme', 'guideme-show');
                 return this;
             },
             exec: function(action) {
-            	performAction((action || '').toString().toUpperCase())
-            	return this;
+                performAction((action || '').toString().toUpperCase())
+                return this;
             },
             end: function() {
                 done();
@@ -257,7 +292,7 @@
                     options.attachTo.removeChild(elOverloay);
                 }
                 options.attachTo.removeChild(elDialog);
-                elStepList = elBody = elTarget = elOverloay = elStepList =
+                stepList = elBody = elTarget = elOverloay = elStepList =
                     elDialog = elDialogTitle = elDialogBody = elDialogFooter =
                     null;
                 return this;
@@ -266,4 +301,4 @@
     }
 
     window.guideme = guideme;
-})(window, jQuery);
+})(window, window.jQuery);

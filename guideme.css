@@ -1,3 +1,8 @@
+.guideme:not(.guideme-show) .guideme-overlay,
+.guideme:not(.guideme-show) .guideme-dialog {
+    display: none;
+}
+
 .guideme .guideme-overlay {
     position: fixed;
     top: 0;
@@ -22,13 +27,22 @@
     z-index: 9999999!important;
 }
 
+.guideme .guideme-dialog[data-guideme-side="center"] {
+    left: 40%;
+    top: 40%;
+}
+
 .guideme .guideme-dialog:before {
 	position: absolute;
 	content: '';
 	border: 7px solid white;
 }
 
-.guideme .guideme-dialog.top:before {
+.guideme .guideme-dialog[data-guideme-side="center"]:before {
+    display: none;
+}
+
+.guideme .guideme-dialog[data-guideme-side="top left"]:before {
 	top: -14px;
 	left: 5px;
     border-bottom-color: white;

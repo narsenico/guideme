@@ -7,8 +7,8 @@
 <body>
 
 	<button data-guideme="Premere questo pulsante per fare questo" data-guideme-step="1">uno</button>
-	<button data-guideme data-guideme-step="2" title="Premere questo pulsante per fare quello">due</button>
-	<button data-guideme="Premere questo pulsante per fare quest'altro" data-guideme-step="3">tre</button>
+	<button data-guideme data-guideme-step="3" title="Premere questo pulsante per fare quello">due</button>
+	<button data-guideme="Premere questo pulsante per fare quest'altro" data-guideme-step="2">tre</button>
 	<button id="btnstart">start</button>
 
 	<div style="width: 400px; height: 800px; position: relative;">
@@ -19,7 +19,14 @@
 	<script type="text/javascript" src="node_modules/underscore/underscore-min.js"></script>
 	<script type="text/javascript" src="guideme.js"></script>
 	<script type="text/javascript">
-		var g = guideme();
+		var g = guideme()
+			.addStep({
+				"content": "aggiunto a mano",
+				"el": document.getElementById('btnstart')
+			})
+			.addStep({
+				"content": "finito!"
+			});
 		setTimeout(() => {
 			g.start();
 		}, 1000);
