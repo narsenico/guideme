@@ -54,48 +54,49 @@
         }
     }
 
-    function setElementPosition(element, stepTarget) {
-        if (stepTarget === 'center') {
-            element.setAttribute('data-guideme-side', 'center');
-            element.style.top = '';
-            element.style.left = '';
-            return;
-        } else {
-            var stepRect = stepTarget.getBoundingClientRect();
-            var isTop = stepRect.top <= stepRect.bottom;
-            var isLeft = stepRect.left <= stepRect.right;
-            var margin = 10;
-            var side;
+    function getBodySize() {
+        var w = document.body.clientWidth,
+            h = document.body.clientHeight;
+        return { "width": w, "height": h };
+    }
 
-            if (isTop) {
-                side = 'top';
-                element.style.top = (stepRect.bottom + margin) + 'px';
-                element.style.bottom = '';
-            } else {
-                side = 'bottom';
-                element.style.bottom = (stepRect.top + margin) + 'px';
-                element.style.top = '';
+    function getWindowSize() {
+        var w = window,
+            d = document,
+            e = d.documentElement,
+            g = d.getElementsByTagName('body')[0],
+            w = w.innerWidth || e.clientWidth || g.clientWidth,
+            h = w.innerHeight || e.clientHeight || g.clientHeight;
+        return { "width": w, "height": h };
+    }
+
+    function createPopper(element, stepTarget) {
+        return new Popper(stepTarget, element, {
+            "placement": "bottom-start",
+            "onCreate": function(dataObject) {
+                // se è posizionato in centro nascondo la freccia
+                element.classList.toggle('center',
+                    stepTarget.guidemeCenter === true);
+                // TODO: scroll automatico perché il dialog sia sempre visibile
             }
-            if (isLeft) {
-                side += ' left';
-                element.style.left = (stepRect.left + margin) + 'px';
-                element.style.right = '';
-            } else {
-                side += ' right';
-                element.style.right = (stepRect.right - margin) + 'px';
-                element.style.left = '';
-            }
-            element.setAttribute('data-guideme-side', side);
-        }
+        });
     }
 
     function nvl(text, def) {
         return !text || text.length === 0 ? def : text;
     }
 
+    function resolveFunctionOrValue(value, index, step, instance) {
+    	if (typeof value == 'function' || false) {
+    		return value(index, step, instance);
+    	} else {
+    		return value;
+    	}
+    }
+
     function stepComparer(stepA, stepB) {
-        if (!stepA.order) return 1;
         if (!stepB.order) return -1;
+        if (!stepA.order) return 1;
         return (+stepA.order || 0) - (+stepB.order || 0);
     }
 
@@ -103,20 +104,46 @@
         return {
             "el": element,
             // se il valore dell'attributo data-guideme è vuoto uso title
-            "content": nvl(element.attributes['data-guideme'].value,
+            "content": nvl(element.getAttribute('data-guideme'),
                 element.title),
             // se non è specificato l'ordine uso l'indice
             "order": element.getAttribute('data-guideme-step') || index + 1
         }
     }
 
+    // elemento di riferimento per posizionare Popper al centro dello schermo
+    function getPopperRererenceCenter(element) {
+        var modWidth = -element.clientWidth / 2,
+            modHeight = -element.clientHeight / 2;
+        return {
+            "guidemeCenter": true,
+            "clientWidth": 1,
+            "clientHeight": 1,
+            "getBoundingClientRect": function() {
+                var size = getWindowSize();
+                return {
+                    "bottom": size.height / 2 + 1 + modHeight,
+                    "height": 1,
+                    "left": size.width / 2 + modWidth,
+                    "right": size.width / 2 + 1 + modWidth,
+                    "top": size.height / 2 + modHeight,
+                    "width": 1
+                };
+            }
+        }
+    }
+
     var defaultOptions = {
         attachTo: null,
         classes: null,
+        title: null,
+        allowKeyboardNavigation: true,
         showOverlay: true,
+        overlayClickAction: 'done',
         buttons: [
             { "text": "prev", "action": "prev" },
-            { "text": "next", "action": "next" }
+            { "text": "next", "action": "next" },
+            { "text": "done", "action": "done" }
         ]
     };
 
@@ -130,11 +157,12 @@
      * @param      {Object}  options  Opzionale
      * @return     {Object}  ritorna una istanza di guideme
      */
-    function guideme(target, options) {
+    function GuideMe(target, options) {
         var elBody = document.querySelector('body'),
             elTarget = parseElemnt(target, elBody),
             elOverloay, elDialog, elDialogTitle, elDialogBody, elDialogFooter,
-            stepList = [];
+            stepList = [],
+            popper;
 
         if (!elTarget) {
             // se è un oggetto presumo che si tratti delle opzioni
@@ -154,6 +182,9 @@
             elOverloay = document.createElement('div');
             elOverloay.innerHTML = '&nbsp;';
             elOverloay.className = 'guideme-overlay';
+            elOverloay.onclick = function() {
+                performAction((options.overlayClickAction || '').toString().toUpperCase());
+            }
             options.attachTo.appendChild(elOverloay);
         }
 
@@ -171,6 +202,7 @@
             var elButton = document.createElement('button');
             elButton.className = 'guideme-button';
             elButton.innerHTML = btn.text;
+            elButton.setAttribute('data-action', btn.action);
             elButton.onclick = function() {
                 performAction((btn.action || '').toString().toUpperCase());
             };
@@ -229,16 +261,19 @@
             }
 
             var step = stepList[index];
-            // TODO: se non c'è el mostrare il dialog al centro
+            elDialogTitle.innerHTML = nvl(resolveFunctionOrValue(options.title, index, step, this), '');
+            elDialogBody.innerHTML = nvl(resolveFunctionOrValue(step.content, index, step, this), '');
+            elDialog.classList.toggle('done', index === stepList.length - 1)
             if (step.el) {
                 step.el.classList.add('guideme-step-target');
+                popper && popper.destroy();
                 // posiziono il dialogo rispetto al tag di riferimento
-                setElementPosition(elDialog, step.el);
+                popper = createPopper(elDialog, step.el);
             } else {
-                setElementPosition(elDialog, 'center');
+                popper && popper.destroy();
+                // posiziono al centro dello schermo
+                popper = createPopper(elDialog, getPopperRererenceCenter(elDialog));
             }
-            elDialogBody.innerHTML = step.content;
-
             showStep.previous = index;
         }
 
@@ -250,11 +285,15 @@
 
         // gestisco gli eventi per la navigazione
         function setupEvents() {
-            window.addEventListener('keyup', onKeyUp);
+            if (options.allowKeyboardNavigation) {
+                window.addEventListener('keyup', onKeyUp);
+            }
         }
 
         function cleanEvents() {
-            window.removeEventListener('keyup', onKeyUp);
+            if (options.allowKeyboardNavigation) {
+                window.removeEventListener('keyup', onKeyUp);
+            }
         }
 
         function done() {
@@ -263,6 +302,7 @@
                 cleanStepElement(+showStep.previous);
             }
             options.attachTo.classList.remove('guideme-show');
+            popper && popper.destroy();
         }
 
         return {
@@ -300,5 +340,5 @@
         };
     }
 
-    window.guideme = guideme;
+    window.GuideMe = GuideMe;
 })(window, window.jQuery);

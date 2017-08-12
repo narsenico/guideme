@@ -19,12 +19,15 @@
     top: 0;
     left: 0;
     width: 300px;
-    min-height: 150px;
     background-color: #fafafa;
     border: solid 1px #dddddd;
     border-radius: 4px;
-    box-shadow: 0 0 0 #aaaaaa;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, .4);
     z-index: 9999999!important;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #222;
+    transition: all .3s ease-out;
 }
 
 .guideme .guideme-dialog[data-guideme-side="center"] {
@@ -33,42 +36,64 @@
 }
 
 .guideme .guideme-dialog:before {
-	position: absolute;
-	content: '';
-	border: 7px solid white;
+    position: absolute;
+    content: '';
+    border: 7px solid white;
 }
 
-.guideme .guideme-dialog[data-guideme-side="center"]:before {
+.guideme .guideme-dialog.done>.guideme-footer>[data-action=next] {
     display: none;
 }
 
-.guideme .guideme-dialog[data-guideme-side="top left"]:before {
-	top: -14px;
-	left: 5px;
+.guideme .guideme-dialog.center:before {
+    display: none;
+}
+
+.guideme .guideme-dialog[x-placement="bottom-start"] {
+    margin-top: 10px;
+}
+
+.guideme .guideme-dialog[x-placement="bottom-start"]:before {
+    top: -14px;
+    left: 5px;
     border-bottom-color: white;
     border-top-color: transparent;
     border-right-color: transparent;
-    border-left-color: transparent;	
+    border-left-color: transparent;
+}
+
+.guideme .guideme-dialog[x-placement="top-start"] {
+    margin-bottom: 10px;
+}
+
+.guideme .guideme-dialog[x-placement="top-start"]:before {
+    bottom: -14px;
+    left: 5px;
+    border-top-color: white;
+    border-bottom-color: transparent;
+    border-right-color: transparent;
+    border-left-color: transparent;
+}
+
+.guideme .guideme-dialog>.guideme-title {
+    padding: 10px;
+    font-weight: bold;
 }
 
 .guideme .guideme-dialog>.guideme-body {
     line-height: 1.6;
-    font-family: Helvetica, Arial, sans-serif;
-    color: #222;
     padding: 10px;
-    background-color: #fafafa;
-    margin-bottom: 20px;
+    background-color: inherit;
+    max-height: 200px;
+    overflow: auto;
 }
 
 .guideme .guideme-dialog>.guideme-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 20px;
-    padding: 4px;
+    padding: 8px;
     text-align: center;
     border-top: solid 1px #ddd;
+    background-color: inherit;
+    white-space: nowrap;
 }
 
 .guideme .guideme-dialog>.guideme-footer>.guideme-button {
@@ -76,6 +101,7 @@
     color: #222;
     border-radius: 0px;
     border: none;
+    font-size: .75em;
     margin: 0 .2em;
     padding: .3em .7em;
     border: 1px solid #d4d4d4;
@@ -84,6 +110,7 @@
 
 .guideme .guideme-step-target {
     position: relative;
-    box-shadow: 0px 0px 5px 3px rgb(62, 59, 59);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, .4);
     z-index: 9999999!important;
+    transition: all .3s ease-out;
 }
