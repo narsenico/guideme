@@ -4,7 +4,7 @@
 <head>
     <title>GuideMe JS</title>
     <link rel="stylesheet" type="text/css" href="guideme.css">
-    <link rel="stylesheet" type="text/css" href="theme.css">
+    <link rel="stylesheet" type="text/css" href="guideme-theme.css">
 </head>
 
 <body>
@@ -17,9 +17,6 @@
         <button style="position: absolute; bottom: 0px; left: 50%;" data-guideme="Altro" data-guideme-step="4">quattro</button>
     </div>
     <button id="btnstart" style="position: fixed; top: 200px; right: 50px: ">start</button>
-    <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="node_modules/underscore/underscore-min.js"></script>
-    <script type="text/javascript" src="node_modules/popper.js/dist/umd/popper.min.js"></script>
     <script type="text/javascript" src="guideme.js"></script>
     <script type="text/javascript">
     var g = GuideMe({
@@ -27,12 +24,20 @@
             "overlayClickAction": "done",
             "showOverlay": true,
             "allowKeyboardNavigation": true,
+            "destroyOnDone": false,
             "classes": ""
         })
         .addStep({
             "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
             "el": document.getElementById('btnstart')
         })
+        .addStep(function() {
+            return {
+                "content": "Scherzavo",
+                "el": document.querySelectorAll('div')[0]
+            }
+        })
+        .addStep("Penultimo step.")
         .addStep({
             "content": function(index, step) {
                 return "finito con lo step " + (index + 1) + "!<br>" + (new Date());

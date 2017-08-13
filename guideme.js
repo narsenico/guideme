@@ -1,3 +1,5 @@
+import Popper from 'popper.js';
+
 ;
 (function(window, $) {
     "use strict";
@@ -76,9 +78,9 @@
                 element.classList.toggle('center',
                     stepTarget.guidemeCenter === true);
                 // scroll automatico perché il target sia sempre visibile
-                // 	non uso element perché il suo posizionamento può essere ritardato da Popper
-                // 	e in ogni caso potrebbe non essere visibile il target
-            	stepTarget.scrollIntoView && stepTarget.scrollIntoView(false);
+                //  non uso element perché il suo posizionamento può essere ritardato da Popper
+                //  e in ogni caso potrebbe non essere visibile il target
+                stepTarget.scrollIntoView && stepTarget.scrollIntoView(false);
             }
         });
     }
@@ -87,12 +89,12 @@
         return !text || text.length === 0 ? def : text;
     }
 
-    function resolveFunctionOrValue(valOrFn, index, step, instance) {
-    	if (typeof valOrFn == 'function' || false) {
-    		return valOrFn(index, step, instance);
-    	} else {
-    		return valOrFn;
-    	}
+    function resolveFunctionOrValue(valOrFn) {
+        if (typeof valOrFn == 'function' || false) {
+            return valOrFn.apply(null, Array.prototype.slice.call(arguments, 1));
+        } else {
+            return valOrFn;
+        }
     }
 
     function stepComparer(stepA, stepB) {
@@ -109,7 +111,13 @@
                 element.title),
             // se non è specificato l'ordine uso l'indice
             "order": element.getAttribute('data-guideme-step') || index + 1
-        }
+        };
+    }
+
+    function stringToStep(value) {
+        return {
+            "content": nvl(value, '')
+        };
     }
 
     // elemento di riferimento per posizionare Popper al centro dello schermo
@@ -138,13 +146,14 @@
         attachTo: null,
         classes: null,
         title: null,
+        destroyOnDone: false,
         allowKeyboardNavigation: true,
         showOverlay: true,
         overlayClickAction: 'done',
         buttons: [
+            { "text": "done", "action": "done" },
             { "text": "prev", "action": "prev" },
-            { "text": "next", "action": "next" },
-            { "text": "done", "action": "done" }
+            { "text": "next", "action": "next" }
         ]
     };
 
@@ -184,7 +193,7 @@
         if (options.showOverlay) {
             elOverloay = document.createElement('div');
             elOverloay.innerHTML = '&nbsp;';
-            elOverloay.className = 'guideme-overlay ' +  nvl(options.classes, '');
+            elOverloay.className = 'guideme-overlay ' + nvl(options.classes, '');
             elOverloay.onclick = function() {
                 performAction((options.overlayClickAction || '').toString().toUpperCase());
             }
@@ -228,8 +237,8 @@
                 case 39: // arraow right
                     performAction('NEXT');
                     break;
-                // case 8: // back
-                //     event.preventDefault();
+                    // case 8: // back
+                    //     event.preventDefault();
                 case 37: // arrow left
                     performAction('PREV');
                     break;
@@ -290,7 +299,7 @@
         }
 
         function setupEvents() {
-        	// gestisco gli eventi per la navigazione
+            // gestisco gli eventi per la navigazione
             if (options.allowKeyboardNavigation) {
                 window.addEventListener('keyup', onKeyUp);
             }
@@ -309,12 +318,38 @@
             }
             options.attachTo.classList.remove('guideme-show');
             popper && popper.destroy();
+            if (options.destroyOnDone) {
+                destroy();
+            }
+        }
+
+        function destroy() {
+            if (elOverloay) {
+                options.attachTo.removeChild(elOverloay);
+            }
+            options.attachTo.removeChild(elDialog);
+            options.attachTo.classList.remove('guideme', 'guideme-show');
+            stepList = elBody = elTarget = elOverloay = elStepList =
+                elDialog = elDialogTitle = elDialogBody = elDialogFooter =
+                null;
         }
 
         return {
+            /**
+             * Aggiunge uno step di seguito a quelli creati in automatico 
+             * (tag con attributo [data-guideme]).
+             * Lo step può essere uno Step, una funziona che ritorna uno Step, 
+             * o una stringa che diverrà il contenuto di uno Step senza elememnto.
+             *
+             * @param      {string|Object|Function}  step    lo step
+             * @return     {Object}  this
+             */
             addStep: function(step) {
-                // TODO: accettare stringhe e oggetti "step"
-                stepList.push(step);
+                if (typeof step == 'string') {
+                    stepList.push(stringToStep(step));
+                } else {
+                    stepList.push(resolveFunctionOrValue(step));
+                }
                 return this;
             },
             start: function(initialStep) {
@@ -334,14 +369,7 @@
             },
             destroy: function() {
                 done();
-                if (elOverloay) {
-                    options.attachTo.removeChild(elOverloay);
-                }
-                options.attachTo.removeChild(elDialog);
-                options.attachTo.classList.remove('guideme', 'guideme-show');
-                stepList = elBody = elTarget = elOverloay = elStepList =
-                    elDialog = elDialogTitle = elDialogBody = elDialogFooter =
-                    null;
+                destroy();
                 return this;
             }
         };

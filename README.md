@@ -1,12 +1,18 @@
 # guideme
 todo
-- addStep: accettare stringhe e oggetti "step"
-- nuova opzione "destroyOnDone": chiama automaticamente destory al termine
-- ordine pulsanti: done, prev, next
+- *fatto* addStep: accettare stringhe e oggetti "step"
+- addStep: accettare uno o più HTMLElement, un selettore o un oggetto jQuery
+- *fatto* nuova opzione "destroyOnDone": chiama automaticamente destory al termine
+- *fatto* ordine pulsanti: done, prev, next
 - gestione eventi:
     -  nuovi metodi on e off
     -  eventi: start, step, end, destroy
--  usare webpack per la creazione del dist
+- *fatto* usare webpack per la creazione del dist
 
 bug
 - Safari: l'ordine degli step manuali non viene rispettato
+- posizionamento anomalo di [x-arrow]:
+	- aggiungere uno step (a) con target un elmento con elevata lunghezza
+	- aggiungere uno step (b) senza target
+	- start e arrivati allo step (b), tornare indietro
+	- lo step (a) ha [x-arrow] con posizionamento anomalo

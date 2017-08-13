@@ -4,7 +4,9 @@
   "description": "",
   "main": "guideme.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start": "webpack-dev-server --open"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +16,8 @@
   },
   "devDependencies": {
     "jquery": "^3.2.1",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "webpack": "^3.5.4",
+    "webpack-dev-server": "^2.7.1"
   }
 }
