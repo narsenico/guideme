@@ -61,12 +61,10 @@
     }
 
     function getWindowSize() {
-        var w = window,
-            d = document,
-            e = d.documentElement,
-            g = d.getElementsByTagName('body')[0],
-            w = w.innerWidth || e.clientWidth || g.clientWidth,
-            h = w.innerHeight || e.clientHeight || g.clientHeight;
+        var e = document.documentElement,
+            g = document.getElementsByTagName('body')[0],
+            w = window.innerWidth || e.clientWidth || g.clientWidth,
+            h = window.innerHeight || e.clientHeight || g.clientHeight;
         return { "width": w, "height": h };
     }
 
@@ -77,7 +75,10 @@
                 // se è posizionato in centro nascondo la freccia
                 element.classList.toggle('center',
                     stepTarget.guidemeCenter === true);
-                // TODO: scroll automatico perché il dialog sia sempre visibile
+                // scroll automatico perché il target sia sempre visibile
+                // 	non uso element perché il suo posizionamento può essere ritardato da Popper
+                // 	e in ogni caso potrebbe non essere visibile il target
+            	stepTarget.scrollIntoView && stepTarget.scrollIntoView(false);
             }
         });
     }
@@ -86,11 +87,11 @@
         return !text || text.length === 0 ? def : text;
     }
 
-    function resolveFunctionOrValue(value, index, step, instance) {
-    	if (typeof value == 'function' || false) {
-    		return value(index, step, instance);
+    function resolveFunctionOrValue(valOrFn, index, step, instance) {
+    	if (typeof valOrFn == 'function' || false) {
+    		return valOrFn(index, step, instance);
     	} else {
-    		return value;
+    		return valOrFn;
     	}
     }
 
@@ -122,10 +123,10 @@
             "getBoundingClientRect": function() {
                 var size = getWindowSize();
                 return {
-                    "bottom": size.height / 2 + 1 + modHeight,
+                    "bottom": size.height / 2 + modHeight,
                     "height": 1,
                     "left": size.width / 2 + modWidth,
-                    "right": size.width / 2 + 1 + modWidth,
+                    "right": size.width / 2 + modWidth,
                     "top": size.height / 2 + modHeight,
                     "width": 1
                 };
@@ -147,7 +148,7 @@
         ]
     };
 
-    var elDialogHtml = '<div class="guideme-title"></div><div class="guideme-body"></div><div class="guideme-footer"></div>';
+    var elDialogHtml = '<div x-arrow></div><div class="guideme-title"></div><div class="guideme-body"></div><div class="guideme-footer"></div>';
 
     /**
      * Crea una guida creando uno step per tutti gli elementi con attributo data-guideme.
@@ -177,11 +178,13 @@
         options = Object.assign({}, defaultOptions, options);
         options.attachTo = parseElemnt(options.attachTo, elBody, true);
 
+        options.attachTo.classList.add('guideme');
+
         // creo il div per mascherare la pagina
         if (options.showOverlay) {
             elOverloay = document.createElement('div');
             elOverloay.innerHTML = '&nbsp;';
-            elOverloay.className = 'guideme-overlay';
+            elOverloay.className = 'guideme-overlay ' +  nvl(options.classes, '');
             elOverloay.onclick = function() {
                 performAction((options.overlayClickAction || '').toString().toUpperCase());
             }
@@ -193,7 +196,7 @@
         elDialog.innerHTML = elDialogHtml;
         elDialog.className = 'guideme-dialog';
         if (options.classes) {
-            elDialog.className += ' ' + options.classes;
+            elDialog.className += ' ' + nvl(options.classes, '');
         }
         elDialogTitle = elDialog.querySelector('.guideme-title');
         elDialogBody = elDialog.querySelector('.guideme-body');
@@ -219,17 +222,19 @@
         }
 
         function onKeyUp(event) {
-            var code = event.keyCode || event.which;
-            // console.log(code)
-            switch (code) {
+            switch (event.keyCode || event.which) {
+                // case 13: // enter
+                //     event.preventDefault();
                 case 39: // arraow right
-                    performAction('NEXT')
+                    performAction('NEXT');
                     break;
+                // case 8: // back
+                //     event.preventDefault();
                 case 37: // arrow left
-                    performAction('PREV')
+                    performAction('PREV');
                     break;
                 case 27: // esc
-                    performAction('DONE')
+                    performAction('DONE');
                     break;
             }
         }
@@ -263,7 +268,8 @@
             var step = stepList[index];
             elDialogTitle.innerHTML = nvl(resolveFunctionOrValue(options.title, index, step, this), '');
             elDialogBody.innerHTML = nvl(resolveFunctionOrValue(step.content, index, step, this), '');
-            elDialog.classList.toggle('done', index === stepList.length - 1)
+            elDialog.classList.toggle('start', index === 0);
+            elDialog.classList.toggle('end', index === stepList.length - 1);
             if (step.el) {
                 step.el.classList.add('guideme-step-target');
                 popper && popper.destroy();
@@ -283,8 +289,8 @@
             }
         }
 
-        // gestisco gli eventi per la navigazione
         function setupEvents() {
+        	// gestisco gli eventi per la navigazione
             if (options.allowKeyboardNavigation) {
                 window.addEventListener('keyup', onKeyUp);
             }
@@ -332,6 +338,7 @@
                     options.attachTo.removeChild(elOverloay);
                 }
                 options.attachTo.removeChild(elDialog);
+                options.attachTo.classList.remove('guideme', 'guideme-show');
                 stepList = elBody = elTarget = elOverloay = elStepList =
                     elDialog = elDialogTitle = elDialogBody = elDialogFooter =
                     null;

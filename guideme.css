@@ -9,8 +9,8 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: -webkit-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0.9) 100%);
-    opacity: 0.7;
+    background: -webkit-radial-gradient(center, ellipse cover, rgba(0, 0, 0, 0.3) 0, #607D8B 100%);
+    opacity: .7;
     z-index: 999999;
 }
 
@@ -30,22 +30,11 @@
     transition: all .3s ease-out;
 }
 
-.guideme .guideme-dialog[data-guideme-side="center"] {
-    left: 40%;
-    top: 40%;
-}
-
-.guideme .guideme-dialog:before {
-    position: absolute;
-    content: '';
-    border: 7px solid white;
-}
-
-.guideme .guideme-dialog.done>.guideme-footer>[data-action=next] {
+.guideme .guideme-dialog.start>.guideme-footer>[data-action=prev] {
     display: none;
 }
 
-.guideme .guideme-dialog.center:before {
+.guideme .guideme-dialog.end>.guideme-footer>[data-action=next] {
     display: none;
 }
 
@@ -53,24 +42,44 @@
     margin-top: 10px;
 }
 
-.guideme .guideme-dialog[x-placement="bottom-start"]:before {
+.guideme .guideme-dialog[x-placement="top-start"] {
+    margin-bottom: 10px;
+}
+
+.guideme .guideme-dialog>[x-arrow] {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border-color: #fafafa;
+}
+
+.guideme .guideme-dialog.center>[x-arrow] {
+    display: none;
+}
+
+.guideme .guideme-dialog>[x-arrow]:before {
+    position: absolute;
+    content: '';
+    border-width: 7px;
+    border-style: solid;
+}
+
+.guideme .guideme-dialog[x-placement="bottom-start"]>[x-arrow]:before {
     top: -14px;
-    left: 5px;
-    border-bottom-color: white;
+    border-bottom-color: inherit;
     border-top-color: transparent;
     border-right-color: transparent;
     border-left-color: transparent;
 }
 
-.guideme .guideme-dialog[x-placement="top-start"] {
-    margin-bottom: 10px;
+.guideme .guideme-dialog[x-placement="top-start"]>[x-arrow] {
+	bottom: 0;
 }
 
-.guideme .guideme-dialog[x-placement="top-start"]:before {
+.guideme .guideme-dialog[x-placement="top-start"]>[x-arrow]:before {
     bottom: -14px;
-    left: 5px;
-    border-top-color: white;
     border-bottom-color: transparent;
+    border-top-color: inherit;
     border-right-color: transparent;
     border-left-color: transparent;
 }
@@ -91,8 +100,9 @@
 .guideme .guideme-dialog>.guideme-footer {
     padding: 8px;
     text-align: center;
-    border-top: solid 1px #ddd;
-    background-color: inherit;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: inherit;
     white-space: nowrap;
 }
 

@@ -4,18 +4,19 @@
 <head>
     <title>GuideMe JS</title>
     <link rel="stylesheet" type="text/css" href="guideme.css">
+    <link rel="stylesheet" type="text/css" href="theme.css">
 </head>
 
 <body>
-    <div style="width: 600px; margin: 0 auto; padding-top: 30px;">
+    <div style="max-width: 900px; margin: 0 auto; padding-top: 30px;">
         <button data-guideme="Premere questo pulsante per fare questo" data-guideme-step="1">uno</button>
-        <button data-guideme data-guideme-step="3" title="Premere questo pulsante per fare quello">tre</button>
-        <button data-guideme="Premere questo pulsante per fare quest'altro" data-guideme-step="2">due</button>
-        <button id="btnstart" style="position: fixed; top: 200px; right: 50px: ">start</button>
+        <button data-guideme data-guideme-step="3" title="Premere questo pulsante per fare quello" style="float: right">tre</button>
+        <button data-guideme="Premere questo pulsante per fare quest'altro" data-guideme-step="2">due</button>        
     </div>
-    <div style="width: 400px; height: 800px; position: relative;">
-        <button style="position: absolute; bottom: 0px; right: 0;" data-guideme="Altro" data-guideme-step="4">quattro</button>
+    <div style="position: relative; width: 400px; height: 800px;">
+        <button style="position: absolute; bottom: 0px; left: 50%;" data-guideme="Altro" data-guideme-step="4">quattro</button>
     </div>
+    <button id="btnstart" style="position: fixed; top: 200px; right: 50px: ">start</button>
     <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="node_modules/underscore/underscore-min.js"></script>
     <script type="text/javascript" src="node_modules/popper.js/dist/umd/popper.min.js"></script>
@@ -25,7 +26,8 @@
             "title": "Guida",
             "overlayClickAction": "done",
             "showOverlay": true,
-            "allowKeyboardNavigation": true
+            "allowKeyboardNavigation": true,
+            "classes": ""
         })
         .addStep({
             "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
@@ -38,7 +40,7 @@
         });
     setTimeout(() => {
         g.start();
-    }, 1000);
+    }, 500);
     document.getElementById('btnstart').onclick = () => g.start();
     </script>
 </body>

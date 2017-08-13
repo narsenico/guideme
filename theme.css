@@ -1,0 +1,20 @@
+.guideme-overlay.blue {
+	background: -webkit-radial-gradient(center, ellipse cover, rgba(0, 188, 212, 0.23) 0, #00bcd4 100%);
+}
+
+.guideme-dialog.blue {
+    background-color: #2196F3;
+    border-color: #3F51B5;
+    color: #FFEB3B;
+}
+
+.guideme-dialog.blue>[x-arrow],
+.guideme-dialog.blue>[x-arrow]:before {
+	border-color: #2196F3;
+}
+
+.guideme-dialog.blue>.guideme-footer>.guideme-button {
+    background-color: #673AB7;
+    color: #ffffff;
+    text-transform: uppercase;
+}
