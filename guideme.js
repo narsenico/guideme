@@ -56,6 +56,23 @@ import Popper from 'popper.js';
         }
     }
 
+    // ritorna null o un array di elementi
+    function parseSelector(selector) {
+        if (!selector) {
+            return null;
+        } else if (selector instanceof HTMLElement) {
+            return [selector];
+        } else if (selector instanceof NodeList) {
+            return selector;
+        } else if (typeof selector == 'string') {
+            return document.querySelectorAll(selector);
+        } else if ($ && selector.jquery) {
+            return selector.get();
+        } else {
+            return null;
+        }
+    }
+
     function getBodySize() {
         var w = document.body.clientWidth,
             h = document.body.clientHeight;
@@ -110,7 +127,7 @@ import Popper from 'popper.js';
             "content": nvl(element.getAttribute('data-guideme'),
                 element.title),
             // se non è specificato l'ordine uso l'indice
-            "order": element.getAttribute('data-guideme-step') || index + 1
+            "order": +element.getAttribute('data-guideme-step')
         };
     }
 
@@ -118,6 +135,13 @@ import Popper from 'popper.js';
         return {
             "content": nvl(value, '')
         };
+    }
+
+    function normalizeStep(step, index) {
+        if (!step.order) {
+            step.order = index + 1;
+        }
+        return step;
     }
 
     // elemento di riferimento per posizionare Popper al centro dello schermo
@@ -160,33 +184,20 @@ import Popper from 'popper.js';
     var elDialogHtml = '<div x-arrow></div><div class="guideme-title"></div><div class="guideme-body"></div><div class="guideme-footer"></div>';
 
     /**
-     * Crea una guida creando uno step per tutti gli elementi con attributo data-guideme.
+     * Crea una guida.
+     * GuideMe().from('body').start();
      *
-     * @param      {String|jQuery|HTMLElement}  target   Opzionale, l'elemento dal quale partire a cercare i tag 
-     *                                                   con attributo data-guideme
      * @param      {Object}  options  Opzionale
      * @return     {Object}  ritorna una istanza di guideme
      */
-    function GuideMe(target, options) {
+    function GuideMe(options) {
         var elBody = document.querySelector('body'),
-            elTarget = parseElemnt(target, elBody),
             elOverloay, elDialog, elDialogTitle, elDialogBody, elDialogFooter,
             stepList = [],
             popper;
 
-        if (!elTarget) {
-            // se è un oggetto presumo che si tratti delle opzioni
-            if (typeof target == 'object') {
-                elTarget = elBody;
-                options = target;
-            } else {
-                throw 'GuideMe: target not found';
-            }
-        }
-
         options = Object.assign({}, defaultOptions, options);
         options.attachTo = parseElemnt(options.attachTo, elBody, true);
-
         options.attachTo.classList.add('guideme');
 
         // creo il div per mascherare la pagina
@@ -224,11 +235,7 @@ import Popper from 'popper.js';
         });
         options.attachTo.appendChild(elDialog);
 
-        // cerco tutti gli elementi con l'attributo data-guideme
-        var elStepList = elTarget.querySelectorAll('[data-guideme]');
-        for (var ii = 0; ii < elStepList.length; ii++) {
-            stepList.push(elementToStep(elStepList[ii], ii));
-        }
+        /// funzioni interne ///
 
         function onKeyUp(event) {
             switch (event.keyCode || event.which) {
@@ -329,16 +336,44 @@ import Popper from 'popper.js';
             }
             options.attachTo.removeChild(elDialog);
             options.attachTo.classList.remove('guideme', 'guideme-show');
-            stepList = elBody = elTarget = elOverloay = elStepList =
-                elDialog = elDialogTitle = elDialogBody = elDialogFooter =
+            stepList = elBody = elOverloay = elDialog =
+                elDialogTitle = elDialogBody = elDialogFooter =
                 null;
         }
 
         return {
             /**
+             * Individua gli elementi con l'attributo [data-guideme] e li aggiunge come step.
+             * Vengono considerati gli elementi stessi individuati da "from" che il loro contenuto.
+             *
+             * @param      {HTMLElement, NodeList, selector, jQuery}  selector  uno o più elementi a partire dai quali creare gli step
+             * @return     {Object}  this
+             */
+            from: function(selector) {
+                // selector -> HTMLElement, NodeList, selector, jQuery
+                // cerco tra i figli quelli con [data-guideme]
+                var els = parseSelector(selector),
+                    elStepList;
+                // console.log(selector, els); 
+                if (els) {
+                    for (var ii = 0; ii < els.length; ii++) {
+                        // se l'elemento è [data-guideme] lo aggiungo
+                        if (els[ii].hasAttribute('data-guideme')) {
+                            stepList.push(normalizeStep(elementToStep(els[ii]), stepList.length));
+                        }
+                        // cerco al suo interno tutti gli elementi con [data-guideme]
+                        elStepList = els[ii].querySelectorAll('[data-guideme]');
+                        for (var jj = 0; jj < elStepList.length; jj++) {
+                            stepList.push(normalizeStep(elementToStep(elStepList[jj]), stepList.length));
+                        }
+                    }
+                }
+                return this;
+            },
+            /**
              * Aggiunge uno step di seguito a quelli creati in automatico 
              * (tag con attributo [data-guideme]).
-             * Lo step può essere uno Step, una funziona che ritorna uno Step, 
+             * Lo step può essere uno Step, una funzione che ritorna uno Step, 
              * o una stringa che diverrà il contenuto di uno Step senza elememnto.
              *
              * @param      {string|Object|Function}  step    lo step
@@ -346,14 +381,15 @@ import Popper from 'popper.js';
              */
             addStep: function(step) {
                 if (typeof step == 'string') {
-                    stepList.push(stringToStep(step));
+                    stepList.push(normalizeStep(stringToStep(step), stepList.length));
                 } else {
-                    stepList.push(resolveFunctionOrValue(step));
+                    stepList.push(normalizeStep(resolveFunctionOrValue(step), stepList.length));
                 }
                 return this;
             },
             start: function(initialStep) {
                 stepList.sort(stepComparer);
+                // console.log(stepList)
                 setupEvents();
                 showStep(+initialStep || 0)
                 options.attachTo.classList.add('guideme', 'guideme-show');
