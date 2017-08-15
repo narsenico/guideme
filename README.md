@@ -11,7 +11,7 @@ todo
 
 bug
 - *fatto* Safari: l'ordine degli step manuali non viene rispettato
-- posizionamento anomalo di [x-arrow]:
+- *fatto* posizionamento anomalo di [x-arrow]:
 	- aggiungere uno step (a) con target un elmento con elevata lunghezza
 	- aggiungere uno step (b) senza target
 	- start e arrivati allo step (b), tornare indietro

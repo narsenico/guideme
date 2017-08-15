@@ -350,8 +350,6 @@ import Popper from 'popper.js';
              * @return     {Object}  this
              */
             from: function(selector) {
-                // selector -> HTMLElement, NodeList, selector, jQuery
-                // cerco tra i figli quelli con [data-guideme]
                 var els = parseSelector(selector),
                     elStepList;
                 // console.log(selector, els); 
@@ -371,8 +369,7 @@ import Popper from 'popper.js';
                 return this;
             },
             /**
-             * Aggiunge uno step di seguito a quelli creati in automatico 
-             * (tag con attributo [data-guideme]).
+             * Aggiunge uno step (tag con attributo [data-guideme]).
              * Lo step può essere uno Step, una funzione che ritorna uno Step, 
              * o una stringa che diverrà il contenuto di uno Step senza elememnto.
              *

@@ -48,13 +48,12 @@
 
 .guideme .guideme-dialog>[x-arrow] {
   position: absolute;
-  width: 15px;
-  height: 15px;
+  width: 20px;
   border-color: #fafafa;
 }
 
 .guideme .guideme-dialog.center>[x-arrow] {
-    display: none;
+    visibility: hidden;
 }
 
 .guideme .guideme-dialog>[x-arrow]:before {
@@ -62,6 +61,7 @@
     content: '';
     border-width: 7px;
     border-style: solid;
+    left: 3px;
 }
 
 .guideme .guideme-dialog[x-placement="bottom-start"]>[x-arrow]:before {
