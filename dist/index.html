@@ -48,10 +48,14 @@
             "content": function(index, step) {
                 return "finito con lo step " + (index + 1) + "!<br>" + (new Date());
             }
-        });
-    setTimeout(() => {
-        g.start();
-    }, 500);
+        })
+        .onStep(function(step, index) {
+            console.log('step at', index, 'is', step);
+        })
+        .onDone(function(finished) {
+            console.log('done', finished, this);
+        })
+        .start();
     document.getElementById('btnstart').onclick = () => g.start();
     </script>
 </body>

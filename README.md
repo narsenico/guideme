@@ -1,18 +1,44 @@
 # guideme
-todo
-- *fatto* addStep: accettare stringhe e oggetti "step"
-- *fatto* addStep: accettare uno o più HTMLElement, un selettore o un oggetto jQuery => usare from()
-- *fatto* nuova opzione "destroyOnDone": chiama automaticamente destory al termine
-- *fatto* ordine pulsanti: done, prev, next
-- gestione eventi:
-    -  nuovi metodi on e off
-    -  eventi: start, step, end, destroy
-- *fatto* usare webpack per la creazione del dist
 
-bug
-- *fatto* Safari: l'ordine degli step manuali non viene rispettato
-- *fatto* posizionamento anomalo di [x-arrow]:
-	- aggiungere uno step (a) con target un elmento con elevata lunghezza
-	- aggiungere uno step (b) senza target
-	- start e arrivati allo step (b), tornare indietro
-	- lo step (a) ha [x-arrow] con posizionamento anomalo
+### Usage
+1. include guideme.js and guideme.css
+    ```html
+    <link rel="stylesheet" type="text/css" href="guideme.css">
+    <script type="text/javascript" src="guideme.js"></script>
+    ```
+2. define steps directly in your html code
+     ```html
+     <button 
+        data-guideme="Click this button to send data" 
+        data-guideme-step="1">
+        send
+    </button>
+     ```
+3. 
+    ```js
+    GuideMe(options)
+        .from('body')
+        .start();
+    ```
+
+### Advanced usage
+
+### Reference
+
+Options: Object
+- attachTo: null,
+- classes: null,
+- title: null,
+- destroyOnDone: false,
+- allowKeyboardNavigation: true,
+- showOverlay: true,
+- overlayClickAction: 'done',
+- buttons: [
+    { "text": "done", "action": "done" },
+    { "text": "prev", "action": "prev" },
+    { "text": "next", "action": "next" }]
+
+Step: Object
+- el: HTMLElement
+- content: String|Function
+- order: Number

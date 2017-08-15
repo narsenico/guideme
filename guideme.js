@@ -87,7 +87,7 @@ import Popper from 'popper.js';
         return { "width": w, "height": h };
     }
 
-    function createPopper(element, stepTarget) {
+    function createPopper(element, stepTarget, cb) {
         return new Popper(stepTarget, element, {
             "placement": "bottom-start",
             "onCreate": function(dataObject) {
@@ -98,6 +98,7 @@ import Popper from 'popper.js';
                 //  non uso element perché il suo posizionamento può essere ritardato da Popper
                 //  e in ogni caso potrebbe non essere visibile il target
                 stepTarget.scrollIntoView && stepTarget.scrollIntoView(false);
+                cb && cb(element, stepTarget, this);
             }
         });
     }
@@ -106,11 +107,20 @@ import Popper from 'popper.js';
         return !text || text.length === 0 ? def : text;
     }
 
-    function resolveFunctionOrValue(valOrFn) {
+    function resolveFunctionOrValue(_this, valOrFn) {
         if (typeof valOrFn == 'function' || false) {
-            return valOrFn.apply(null, Array.prototype.slice.call(arguments, 1));
+            return valOrFn.apply(_this, Array.prototype.slice.call(arguments, 2));
         } else {
             return valOrFn;
+        }
+    }
+
+    // ritorna obj se del tipo previsto, oppure scatena un errore
+    function ofTypeOrThrow(obj, type, error) {
+        if (typeof obj == type || false) {
+            return obj;
+        } else {
+            throw error || 'Invalid type: must be a ' + type;
         }
     }
 
@@ -194,7 +204,11 @@ import Popper from 'popper.js';
         var elBody = document.querySelector('body'),
             elOverloay, elDialog, elDialogTitle, elDialogBody, elDialogFooter,
             stepList = [],
-            popper;
+            popper,
+            curStepIndex,
+            instance;
+
+        var onStep, onDone;
 
         options = Object.assign({}, defaultOptions, options);
         options.attachTo = parseElemnt(options.attachTo, elBody, true);
@@ -258,10 +272,10 @@ import Popper from 'popper.js';
         function performAction(action) {
             switch (action) {
                 case 'NEXT':
-                    showStep((+showStep.previous || 0) + 1);
+                    showStep((+curStepIndex || 0) + 1);
                     break;
                 case 'PREV':
-                    showStep((+showStep.previous || 0) - 1);
+                    showStep((+curStepIndex || 0) - 1);
                     break;
                 case 'DONE':
                     done();
@@ -272,8 +286,8 @@ import Popper from 'popper.js';
         function showStep(index) {
             if (index < 0) return;
             // pulisco il tag dello step precedente
-            if (!isNaN(showStep.previous)) {
-                cleanStepElement(+showStep.previous);
+            if (!isNaN(curStepIndex)) {
+                cleanStepElement(+curStepIndex);
             }
             // se non ci sono più step da mostrare termino la guida
             if (index >= stepList.length) {
@@ -281,22 +295,23 @@ import Popper from 'popper.js';
                 return;
             }
 
+            curStepIndex = index;
+
             var step = stepList[index];
-            elDialogTitle.innerHTML = nvl(resolveFunctionOrValue(options.title, index, step, this), '');
-            elDialogBody.innerHTML = nvl(resolveFunctionOrValue(step.content, index, step, this), '');
+            elDialogTitle.innerHTML = nvl(resolveFunctionOrValue(instance, options.title, index, step), '');
+            elDialogBody.innerHTML = nvl(resolveFunctionOrValue(instance, step.content, index, step), '');
             elDialog.classList.toggle('start', index === 0);
             elDialog.classList.toggle('end', index === stepList.length - 1);
             if (step.el) {
                 step.el.classList.add('guideme-step-target');
                 popper && popper.destroy();
                 // posiziono il dialogo rispetto al tag di riferimento
-                popper = createPopper(elDialog, step.el);
+                popper = createPopper(elDialog, step.el, onStep);
             } else {
                 popper && popper.destroy();
                 // posiziono al centro dello schermo
-                popper = createPopper(elDialog, getPopperRererenceCenter(elDialog));
+                popper = createPopper(elDialog, getPopperRererenceCenter(elDialog), onStep);
             }
-            showStep.previous = index;
         }
 
         function cleanStepElement(index) {
@@ -318,13 +333,27 @@ import Popper from 'popper.js';
             }
         }
 
+        function createOnStep(cb) {
+            return function(target, stepTarget, popper) {
+                cb(stepList[curStepIndex], curStepIndex, target, stepTarget, popper);
+            };
+        }
+
+        function createOnDone(cb) {
+            return function() {
+                // richiamo cb indicando se gli step sono finiti o se la sequenza è stata interrotta
+                cb(curStepIndex === stepList.length - 1);
+            }
+        }
+
         function done() {
             cleanEvents();
-            if (!isNaN(showStep.previous)) {
-                cleanStepElement(+showStep.previous);
+            if (!isNaN(curStepIndex)) {
+                cleanStepElement(+curStepIndex);
             }
             options.attachTo.classList.remove('guideme-show');
             popper && popper.destroy();
+            onDone && onDone();
             if (options.destroyOnDone) {
                 destroy();
             }
@@ -341,7 +370,8 @@ import Popper from 'popper.js';
                 null;
         }
 
-        return {
+        // creo l'istanza da ritornare con la funzione
+        instance = {
             /**
              * Individua gli elementi con l'attributo [data-guideme] e li aggiunge come step.
              * Vengono considerati gli elementi stessi individuati da "from" che il loro contenuto.
@@ -380,7 +410,7 @@ import Popper from 'popper.js';
                 if (typeof step == 'string') {
                     stepList.push(normalizeStep(stringToStep(step), stepList.length));
                 } else {
-                    stepList.push(normalizeStep(resolveFunctionOrValue(step), stepList.length));
+                    stepList.push(normalizeStep(resolveFunctionOrValue(this, step), stepList.length));
                 }
                 return this;
             },
@@ -392,10 +422,10 @@ import Popper from 'popper.js';
                 options.attachTo.classList.add('guideme', 'guideme-show');
                 return this;
             },
-            exec: function(action) {
-                performAction((action || '').toString().toUpperCase())
-                return this;
-            },
+            // exec: function(action) {
+            //     performAction((action || '').toString().toUpperCase())
+            //     return this;
+            // },
             end: function() {
                 done();
                 return this;
@@ -404,8 +434,42 @@ import Popper from 'popper.js';
                 done();
                 destroy();
                 return this;
+            },
+            /**
+             * Richiama la callback al cambio di step.
+             * All'interno della callback this si riferisce a questa istanza.
+             *
+             * @param      {Function}  cb      callback(step, index, target, stepTarget, popper)
+             * @return     {Object}    this
+             */
+            onStep: function(cb) {
+                if (!cb) {
+                    onStep = null;
+                } else {
+                    // creo una funzione che al suo interno richiama cb bindata a this
+                    onStep = createOnStep(ofTypeOrThrow(cb, 'function', 'cb must be a function').bind(this));
+                }
+                return this;
+            },
+            /**
+             * Richiama la callback al termine della sequenza, anche se interrotta.
+             * All'interno della callback this si riferisce a questa istanza.
+             *
+             * @param      {Function}  cb      callback(finished: boolean)
+             * @return     {Object}    this
+             */
+            onDone: function(cb) {
+                if (!cb) {
+                    onDone = null;
+                } else {
+                    // creo una funzione che al suo interno richiama cb bindata a this
+                    onDone = createOnDone(ofTypeOrThrow(cb, 'function', 'cb must be a function').bind(this));
+                }
+                return this;
             }
         };
+
+        return instance;
     }
 
     window.GuideMe = GuideMe;
