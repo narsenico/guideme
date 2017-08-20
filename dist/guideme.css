@@ -30,11 +30,11 @@
     transition: all .3s ease-out;
 }
 
-.guideme .guideme-dialog.start>.guideme-footer>[data-action=prev] {
+.guideme .guideme-dialog.guideme-start>.guideme-footer>[data-action="prev"] {
     display: none;
 }
 
-.guideme .guideme-dialog.end>.guideme-footer>[data-action=next] {
+.guideme .guideme-dialog.guideme-end>.guideme-footer>[data-action="next"] {
     display: none;
 }
 
@@ -47,12 +47,12 @@
 }
 
 .guideme .guideme-dialog>[x-arrow] {
-  position: absolute;
-  width: 20px;
-  border-color: #fafafa;
+    position: absolute;
+    width: 20px;
+    border-color: #fafafa;
 }
 
-.guideme .guideme-dialog.center>[x-arrow] {
+.guideme .guideme-dialog.guideme-center>[x-arrow] {
     visibility: hidden;
 }
 
@@ -73,7 +73,7 @@
 }
 
 .guideme .guideme-dialog[x-placement="top-start"]>[x-arrow] {
-	bottom: 0;
+    bottom: 0;
 }
 
 .guideme .guideme-dialog[x-placement="top-start"]>[x-arrow]:before {

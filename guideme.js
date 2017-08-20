@@ -92,7 +92,7 @@ import Popper from 'popper.js';
             "placement": "bottom-start",
             "onCreate": function(dataObject) {
                 // se è posizionato in centro nascondo la freccia
-                elDialog.classList.toggle('center',
+                elDialog.classList.toggle('guideme-center',
                     stepTarget.guidemeCenter === true);
                 // scroll automatico perché il target sia sempre visibile
                 //  non uso elDialog perché il suo posizionamento può essere ritardato da Popper
@@ -113,11 +113,11 @@ import Popper from 'popper.js';
         return !text || text.length === 0 ? def : text;
     }
 
-    function resolveFunctionOrValue(_this, valOrFn) {
-        if (typeof valOrFn == 'function' || false) {
-            return valOrFn.apply(_this, Array.prototype.slice.call(arguments, 2));
+    function resolveFunctionOrValue(fnOrVal, _this) {
+        if (typeof fnOrVal == 'function' || false) {
+            return fnOrVal.apply(_this, Array.prototype.slice.call(arguments, 2));
         } else {
-            return valOrFn;
+            return fnOrVal;
         }
     }
 
@@ -142,7 +142,6 @@ import Popper from 'popper.js';
             // se il valore dell'attributo data-guideme è vuoto uso title
             "content": nvl(element.getAttribute('data-guideme'),
                 element.title),
-            // se non è specificato l'ordine uso l'indice
             "order": +element.getAttribute('data-guideme-step')
         };
     }
@@ -304,10 +303,10 @@ import Popper from 'popper.js';
             curStepIndex = index;
 
             var step = stepList[index];
-            elDialogTitle.innerHTML = nvl(resolveFunctionOrValue(instance, options.title, index, step), '');
-            elDialogBody.innerHTML = nvl(resolveFunctionOrValue(instance, step.content, index, step), '');
-            elDialog.classList.toggle('start', index === 0);
-            elDialog.classList.toggle('end', index === stepList.length - 1);
+            elDialogTitle.innerHTML = nvl(resolveFunctionOrValue(options.title, instance, index, step), '');
+            elDialogBody.innerHTML = nvl(resolveFunctionOrValue(step.content, instance, index, step), '');
+            elDialog.classList.toggle('guideme-start', index === 0);
+            elDialog.classList.toggle('guideme-end', index === stepList.length - 1);
             if (step.target) {
                 step.target.classList.add('guideme-step-target');
                 popper && popper.destroy();
@@ -416,13 +415,13 @@ import Popper from 'popper.js';
                 if (typeof step == 'string') {
                     stepList.push(normalizeStep(stringToStep(step), stepList.length));
                 } else {
-                    stepList.push(normalizeStep(resolveFunctionOrValue(this, step), stepList.length));
+                    stepList.push(normalizeStep(resolveFunctionOrValue(step, this), stepList.length));
                 }
                 return this;
             },
             start: function(initialStep) {
                 stepList.sort(stepComparer);
-                console.log(stepList)
+                // console.log(stepList)
                 setupEvents();
                 showStep(+initialStep || 0)
                 options.attachTo.classList.add('guideme', 'guideme-show');
