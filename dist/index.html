@@ -9,16 +9,16 @@
 
 <body>
     <div style="max-width: 900px; margin: 0 auto; padding-top: 30px;">
-        <button data-guideme="Premere questo pulsante per fare questo" data-guideme-step="1">uno</button>
+        <button data-guideme="Premere questo pulsante per fare questo" data-guideme-step="1" onclick="alert(1)">uno</button>
         <button data-guideme data-guideme-step="3" title="Premere questo pulsante per fare quello" style="float: right">tre</button>
-        <button data-guideme="Premere questo pulsante per fare quest'altro" data-guideme-step="2">due</button>        
+        <input type="text" data-guideme="Digita un testo" data-guideme-step="2" value="due">
     </div>
     <div style="position: relative; width: 400px; height: 800px;">
         <button style="position: absolute; bottom: 0px; left: 50%;" data-guideme="Altro" data-guideme-step="4">quattro</button>
     </div>
     <button id="btnstart" style="position: fixed; top: 200px; right: 50px: ">start</button>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="guideme.js"></script>
+    <script type="text/javascript" src="guideme.min.js"></script>
     <script type="text/javascript">
     var g = GuideMe({
             "title": "Guida",
@@ -26,7 +26,7 @@
             "showOverlay": true,
             "allowKeyboardNavigation": true,
             "destroyOnDone": false,
-            "classes": ""
+            "classes": "notransition"
         })
         .from('body')
         //.from(document.querySelectorAll('div'))
@@ -49,7 +49,7 @@
                 return "finito con lo step " + (index + 1) + "!<br>" + (new Date());
             }
         })
-        .onStep(function(step, index) {
+        .onStep(function(step, index, target, stepTarget) {
             console.log('step at', index, 'is', step);
         })
         .onDone(function(finished) {
@@ -57,6 +57,7 @@
         })
         .start();
     document.getElementById('btnstart').onclick = () => g.start();
+    document.querySelector('input').onkeydown = () => console.log('keydown on input');
     </script>
 </body>
 

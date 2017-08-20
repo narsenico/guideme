@@ -4,9 +4,9 @@ const path = require('path'),
 module.exports = {
     entry: './guideme.js',
     output: {
-        filename: 'guideme.js',
+        filename: 'guideme.min.js',
         path: path.resolve(__dirname, 'dist'),
-        sourceMapFilename: 'guideme.js.map'
+        sourceMapFilename: 'guideme.min.js.map'
     },
     devServer: {
         contentBase: './dist'

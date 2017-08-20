@@ -87,18 +87,24 @@ import Popper from 'popper.js';
         return { "width": w, "height": h };
     }
 
-    function createPopper(element, stepTarget, cb) {
-        return new Popper(stepTarget, element, {
+    function createPopper(elDialog, stepTarget, cb) {
+        return new Popper(stepTarget, elDialog, {
             "placement": "bottom-start",
             "onCreate": function(dataObject) {
                 // se è posizionato in centro nascondo la freccia
-                element.classList.toggle('center',
+                elDialog.classList.toggle('center',
                     stepTarget.guidemeCenter === true);
                 // scroll automatico perché il target sia sempre visibile
-                //  non uso element perché il suo posizionamento può essere ritardato da Popper
+                //  non uso elDialog perché il suo posizionamento può essere ritardato da Popper
                 //  e in ogni caso potrebbe non essere visibile il target
-                stepTarget.scrollIntoView && stepTarget.scrollIntoView(false);
-                cb && cb(element, stepTarget, this);
+                if (stepTarget.scrollIntoView) {
+                    // ritardo di un poco perché su chrome (e forse su altri) 
+                    //  lo scroll al primo step non funziona
+                    setTimeout(function() {
+                        stepTarget.scrollIntoView(false); 
+                    }, 100);
+                }
+                cb && cb(elDialog, stepTarget, this);
             }
         });
     }
@@ -125,14 +131,14 @@ import Popper from 'popper.js';
     }
 
     function stepComparer(stepA, stepB) {
-        if (!stepB.order) return -1;
-        if (!stepA.order) return 1;
+        if (isNaN(stepB.order)) return -1;
+        if (isNaN(stepA.order)) return 1;
         return (+stepA.order || 0) - (+stepB.order || 0);
     }
 
-    function elementToStep(element, index) {
+    function elementToStep(element) {
         return {
-            "el": element,
+            "target": element,
             // se il valore dell'attributo data-guideme è vuoto uso title
             "content": nvl(element.getAttribute('data-guideme'),
                 element.title),
@@ -148,8 +154,8 @@ import Popper from 'popper.js';
     }
 
     function normalizeStep(step, index) {
-        if (!step.order) {
-            step.order = index + 1;
+        if (isNaN(step.order)) {
+            step.order = index;
         }
         return step;
     }
@@ -197,7 +203,7 @@ import Popper from 'popper.js';
      * Crea una guida.
      * GuideMe().from('body').start();
      *
-     * @param      {Object}  options  Opzionale
+     * @param      {Object}  options  opzioni
      * @return     {Object}  ritorna una istanza di guideme
      */
     function GuideMe(options) {
@@ -251,15 +257,15 @@ import Popper from 'popper.js';
 
         /// funzioni interne ///
 
-        function onKeyUp(event) {
+        function onKeyDown(event) {
+            event.preventDefault();
+            event.stopPropagation();
             switch (event.keyCode || event.which) {
-                // case 13: // enter
-                //     event.preventDefault();
+                case 13: // enter
                 case 39: // arraow right
                     performAction('NEXT');
                     break;
-                    // case 8: // back
-                    //     event.preventDefault();
+                case 8: // back
                 case 37: // arrow left
                     performAction('PREV');
                     break;
@@ -302,11 +308,11 @@ import Popper from 'popper.js';
             elDialogBody.innerHTML = nvl(resolveFunctionOrValue(instance, step.content, index, step), '');
             elDialog.classList.toggle('start', index === 0);
             elDialog.classList.toggle('end', index === stepList.length - 1);
-            if (step.el) {
-                step.el.classList.add('guideme-step-target');
+            if (step.target) {
+                step.target.classList.add('guideme-step-target');
                 popper && popper.destroy();
                 // posiziono il dialogo rispetto al tag di riferimento
-                popper = createPopper(elDialog, step.el, onStep);
+                popper = createPopper(elDialog, step.target, onStep);
             } else {
                 popper && popper.destroy();
                 // posiziono al centro dello schermo
@@ -315,21 +321,21 @@ import Popper from 'popper.js';
         }
 
         function cleanStepElement(index) {
-            if (stepList[index].el) {
-                stepList[index].el.classList.remove('guideme-step-target');
+            if (stepList[index].target) {
+                stepList[index].target.classList.remove('guideme-step-target');
             }
         }
 
         function setupEvents() {
             // gestisco gli eventi per la navigazione
             if (options.allowKeyboardNavigation) {
-                window.addEventListener('keyup', onKeyUp);
+                window.addEventListener('keydown', onKeyDown);
             }
         }
 
         function cleanEvents() {
             if (options.allowKeyboardNavigation) {
-                window.removeEventListener('keyup', onKeyUp);
+                window.removeEventListener('keydown', onKeyDown);
             }
         }
 
@@ -416,7 +422,7 @@ import Popper from 'popper.js';
             },
             start: function(initialStep) {
                 stepList.sort(stepComparer);
-                // console.log(stepList)
+                console.log(stepList)
                 setupEvents();
                 showStep(+initialStep || 0)
                 options.attachTo.classList.add('guideme', 'guideme-show');
@@ -466,8 +472,23 @@ import Popper from 'popper.js';
                     onDone = createOnDone(ofTypeOrThrow(cb, 'function', 'cb must be a function').bind(this));
                 }
                 return this;
+            },
+            stepAt: function(index) {
+                return stepList[+index];
             }
         };
+
+        // proprietà in sola lettura
+        Object.defineProperty(instance, 'stepCount', {
+            "get": function() {
+                return stepList.length;
+            }
+        });
+        Object.defineProperty(instance, 'stepIndex', {
+            "get": function() {
+                return curStepIndex;
+            }
+        });
 
         return instance;
     }
