@@ -2,8 +2,7 @@
   "name": "guideme",
   "description": "Guide for web app",
   "main": [
-    "dist/guideme.min.js",
-    "dist/guideme.css"
+    "src/guideme.js"
   ],
   "authors": [
     "narsenico <not_amon-dev@yahoo.it>"
