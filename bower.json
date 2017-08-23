@@ -1,0 +1,24 @@
+{
+  "name": "guideme",
+  "description": "Guide for web app",
+  "main": [
+    "dist/guideme.min.js",
+    "dist/guideme.css"
+  ],
+  "authors": [
+    "narsenico <not_amon-dev@yahoo.it>"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "guide",
+    "presentation"
+  ],
+  "homepage": "https://github.com/narsenico/guideme",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

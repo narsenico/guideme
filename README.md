@@ -21,6 +21,8 @@
     ```js
     GuideMe().from('body').start();
     ```
+### Dependencies
+- [popper.js](https://github.com/FezVrasta/popper.js)
 
 ### Advanced usage
 

@@ -1,7 +1,7 @@
 {
   "name": "guideme",
   "version": "1.0.0",
-  "description": "",
+  "description": "Guide for web app",
   "main": "guideme.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
