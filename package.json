@@ -1,14 +1,16 @@
 {
   "name": "guideme",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Guide for web app",
-  "main": "guideme.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "start": "webpack-dev-server --open"
   },
-  "keywords": [],
+  "keywords": [
+    "guide",
+    "presentation"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -17,6 +19,8 @@
   "devDependencies": {
     "css-loader": "^0.28.5",
     "extract-text-webpack-plugin": "^3.0.0",
+    "file-loader": "^0.11.2",
+    "html-loader": "^0.5.1",
     "style-loader": "^0.18.2",
     "webpack": "^3.5.4",
     "webpack-dev-server": "^2.7.1"

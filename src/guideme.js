@@ -1,10 +1,14 @@
-import styles from './guideme.css'
-import themeStyles from './guideme-theme.css'
-import Popper from 'popper.js';
+// import styles from './guideme.css'
+// import themeStyles from './guideme-theme.css'
+// import Popper from 'popper.js';
 
-;
-(function(window, $) {
-    "use strict";
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+    typeof define === 'function' && define.amd ? define(factory) :
+    (global.GuideMe = factory());
+}(this, (function () { 'use strict';
+
+    var $ = window && window.jQuery;
 
     // @see https://developer.mozilla.org/it/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
     if (!Object.assign) {
@@ -494,5 +498,5 @@ import Popper from 'popper.js';
         return instance;
     }
 
-    window.GuideMe = GuideMe;
-})(window, window.jQuery);
+    return GuideMe;
+})));

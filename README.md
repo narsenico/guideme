@@ -1,7 +1,7 @@
 # guideme
 
 ### Usage
-1. Include `guideme.min.js`
+1. Include `guideme-bundle.min.js`
     ```html
     <script type="text/javascript" src="guideme.min.js"></script>
     ```
@@ -67,7 +67,7 @@ Properties
 - `stepIndex`: (*Number*) Current step index. Read-only.
 
 Methods
-- from: 
+- from
 - addStep
 - start
 - exec

@@ -2,11 +2,17 @@ const path = require('path'),
     webpack = require('webpack'),
     ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+const extractCss = new ExtractTextPlugin('guideme.css'),
+    extractHtml = new ExtractTextPlugin('index.html')
+
 module.exports = {
-    entry: './src/guideme.js',
+    entry: {
+        'guideme-bundle': './src/guideme-bundle.js',
+        'guideme-alone': './src/guideme-alone.js',
+    },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'guideme.min.js'
+        filename: '[name].min.js'
     },
     devServer: {
         contentBase: './dist'
@@ -15,7 +21,10 @@ module.exports = {
     module: {
         loaders: [{
             test: /\.css/,
-            loader: ExtractTextPlugin.extract('css-loader'),
+            loader: extractCss.extract('css-loader'),
+        },{
+            test: /\.html/,
+            loader: extractHtml.extract('html-loader'),
         }]
     },
     plugins: [
@@ -24,7 +33,8 @@ module.exports = {
                 'NODE_ENV': JSON.stringify('production')
             }
         }),
-        new ExtractTextPlugin('guideme.css'),
+        extractHtml,
+        extractCss,
         // new webpack.LoaderOptionsPlugin({
         //     minimize: true,
         //     debug: false,
