@@ -1,9 +1,16 @@
 # guideme
 
+### Demo
+https://codepen.io/narsenico/pen/EvbXKB
+
 ### Usage
 1. Include `guideme-bundle.min.js`
     ```html
-    <script type="text/javascript" src="guideme.min.js"></script>
+    <script type="text/javascript" src="guideme-bundle.min.js"></script>
+    ```
+    or `guideme-alone.min.js` for standalone version without [popper.js](https://github.com/FezVrasta/popper.js)
+    ```html
+    <script type="text/javascript" src="guideme-alone.min.js"></script>
     ```
 2. Include `guideme.css`
     ```html
