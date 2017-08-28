@@ -148,7 +148,7 @@
             // se il valore dell'attributo data-guideme è vuoto uso title
             "content": nvl(element.getAttribute('data-guideme'),
                 element.title),
-            "order": +element.getAttribute('data-guideme-step')
+            "order": +element.getAttribute('data-guideme-order')
         };
     }
 
@@ -410,7 +410,7 @@
                 return this;
             },
             /**
-             * Aggiunge uno step (tag con attributo [data-guideme]).
+             * Aggiunge uno step.
              * Lo step può essere uno Step, una funzione che ritorna uno Step, 
              * o una stringa che diverrà il contenuto di uno Step senza elememnto.
              *
