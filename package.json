@@ -1,9 +1,9 @@
 {
   "name": "guideme",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Guide for web app",
+  "main": "src/guideme.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "start": "webpack-dev-server --open"
   },
