@@ -50,8 +50,7 @@ GuideMeController
 ###### Properties
 `attachTo`: (*String|Object*) Where to attach the dialog element. Can be HTMLElement, css selector, jQuery object or null (body). Default **null**.
 
-`classes`: (*String*) List of space separated classes. Additional css classes for dialog and overlay element.
-title: null,
+`classes`: (*String*) List of space separated classes. Additional css classes for dialog and overlay element. Default: **null**.
 
 `destroyOnDone`: (*Boolean*) If true, automatically calls the *destroy()* function at the end of the guide. Default **false**.
 
