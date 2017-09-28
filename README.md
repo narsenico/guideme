@@ -3,6 +3,9 @@
 ### Demo
 https://codepen.io/narsenico/pen/EvbXKB
 
+### Repository
+https://github.com/narsenico/guideme
+
 ### Usage
 1. Include `guideme-bundle.min.js`
     ```html
@@ -37,27 +40,25 @@ https://codepen.io/narsenico/pen/EvbXKB
 
 ### Reference
 
-##### GuideMe
-(*Function*)
+##### GuideMe (*Function*)
 ###### Usage
 GuideMe(options)
 ###### Return
 GuideMeController
 
-##### Options
-(*Object*)
+##### Options (*Object*)
 ###### Properties
 `attachTo`: (*String|Object*) Where to attach the dialog element. Can be HTMLElement, css selector, jQuery object or null (body). Default **null**.
 
 `classes`: (*String*) List of space separated classes. Additional css classes for dialog and overlay element.
 title: null,
 
-`destroyOnDone`: (*Boolean*) Clean GuideMe internal references and remove dialog and overlay elements from DOM. Default **true**.
+`destroyOnDone`: (*Boolean*) If true, automatically calls the *destroy()* function at the end of the guide. Default **false**.
 
 `allowKeyboardNavigation`: (*Boolean*) Allow steps navigation through keboard. Default **true**.
-    - left arrow|back: go to previous step
-    - right arrow|enter: go to next step
-    - esc: terminate guide
+- left arrow|back: go to previous step
+- right arrow|enter: go to next step
+- esc: terminate guide
 
 `showOverlay`: (*Boolean*) Show overlay layer. Default **true**.
 
@@ -76,10 +77,9 @@ Default:
 - next: go to next step
 - done: exit guide
 
-##### GuideMeController: 
-(*Object*)
+##### GuideMeController (*Object*)
 ###### Properties
-`stepCount`: (*Number*) Number of steps. Read-only.
+`stepCount`: (*Number*) Number of steps. Read-only.  
 `stepIndex`: (*Number*) Current step index. Read-only.
 
 ###### Methods
@@ -96,11 +96,11 @@ Step can be:
 - a function that return a [Step](#Step) object
 - a string representing the content of a [Step](#Step) without target
 
-start(initialStep)
+`start(initialStep)`: Start the guide from *initialStep* or first step if not specified. Return: *GuideMeController*.
 
-end
+`end()`: End the guide. Return: *GuideMeController*.
 
-destroy
+`destroy()`: Clean GuideMe internal references and remove dialog and overlay elements from DOM. Return: *GuideMeController*.
 
 onStep
 
@@ -108,8 +108,7 @@ onDone
 
 stapAt
 
-##### Step
-(*Object*)
+##### Step (*Object*)
 ###### Properties
 target: (*HTMLElement*)
 
