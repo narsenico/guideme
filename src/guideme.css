@@ -84,9 +84,17 @@
     border-left-color: transparent;
 }
 
-.guideme .guideme-dialog>.guideme-title {
+.guideme .guideme-dialog>.guideme-header {
     padding: 10px;
+}
+
+.guideme .guideme-dialog>.guideme-header>.guideme-title {
     font-weight: bold;
+}
+
+.guideme .guideme-dialog>.guideme-header>.guideme-step-counter {
+    float: right;
+    font-size: .8em;
 }
 
 .guideme .guideme-dialog>.guideme-body {
@@ -104,6 +112,10 @@
     border-top-width: 1px;
     border-top-color: inherit;
     white-space: nowrap;
+}
+
+.guideme .guideme-dialog.guideme-no-footer>.guideme-footer {
+    display: none;
 }
 
 .guideme .guideme-dialog>.guideme-footer>.guideme-button {

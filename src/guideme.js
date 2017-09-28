@@ -2,11 +2,12 @@
 // import themeStyles from './guideme-theme.css'
 // import Popper from 'popper.js';
 
-(function (global, factory) {
+(function(global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global.GuideMe = factory());
-}(this, (function () { 'use strict';
+        typeof define === 'function' && define.amd ? define(factory) :
+        (global.GuideMe = factory());
+}(this, (function() {
+    'use strict';
 
     var $ = window && window.jQuery;
 
@@ -107,7 +108,7 @@
                     // ritardo di un poco perché su chrome (e forse su altri) 
                     //  lo scroll al primo step non funziona
                     setTimeout(function() {
-                        stepTarget.scrollIntoView(false); 
+                        stepTarget.scrollIntoView(false);
                     }, 100);
                 }
                 cb && cb(elDialog, stepTarget, this);
@@ -187,6 +188,16 @@
         }
     }
 
+    function formatStepCounter(format, index, length) {
+        if (format === true) {
+            return (index + 1) + '/' + length;
+        } else if (format) {
+            return format.replace(/%1/, (index + 1)).replace(/%2/, length);
+        } else {
+            return '';
+        }
+    }
+
     var defaultOptions = {
         attachTo: null,
         classes: null,
@@ -194,6 +205,7 @@
         destroyOnDone: false,
         allowKeyboardNavigation: true,
         showOverlay: true,
+        showStepCounter: false,
         overlayClickAction: 'done',
         buttons: [
             { "text": "done", "action": "done" },
@@ -202,7 +214,7 @@
         ]
     };
 
-    var elDialogHtml = '<div x-arrow></div><div class="guideme-title"></div><div class="guideme-body"></div><div class="guideme-footer"></div>';
+    var elDialogHtml = '<div x-arrow></div><div class="guideme-header"><span class="guideme-title"></span><span class="guideme-step-counter"></span></div><div class="guideme-body"></div><div class="guideme-footer"></div>';
 
     /**
      * Crea una guida.
@@ -213,7 +225,7 @@
      */
     function GuideMe(options) {
         var elBody = document.querySelector('body'),
-            elOverloay, elDialog, elDialogTitle, elDialogBody, elDialogFooter,
+            elOverloay, elDialog, elDialogTitle, elDialogStepCounter, elDialogBody, elDialogFooter,
             stepList = [],
             popper,
             curStepIndex,
@@ -244,27 +256,33 @@
             elDialog.className += ' ' + nvl(options.classes, '');
         }
         elDialogTitle = elDialog.querySelector('.guideme-title');
+        elDialogStepCounter = elDialog.querySelector('.guideme-step-counter');
         elDialogBody = elDialog.querySelector('.guideme-body');
         elDialogFooter = elDialog.querySelector('.guideme-footer');
-        options.buttons.map(function(btn) {
-            var elButton = document.createElement('button');
-            elButton.className = 'guideme-button';
-            elButton.innerHTML = btn.text;
-            elButton.setAttribute('data-action', btn.action);
-            elButton.onclick = function() {
-                performAction((btn.action || '').toString().toUpperCase());
-            };
-            return elButton;
-        }).forEach(function(element) {
-            elDialogFooter.appendChild(element);
-        });
+        // se non ci sono pulsanti nascondo il footer
+        if (options.buttons && options.buttons.length > 0) {
+            options.buttons.map(function(btn) {
+                var elButton = document.createElement('button');
+                elButton.className = 'guideme-button';
+                elButton.innerHTML = btn.text;
+                elButton.setAttribute('data-action', btn.action);
+                elButton.onclick = function() {
+                    performAction((btn.action || '').toString().toUpperCase());
+                };
+                return elButton;
+            }).forEach(function(element) {
+                elDialogFooter.appendChild(element);
+            });
+        } else {
+            elDialog.className += ' guideme-no-footer';
+        }
         options.attachTo.appendChild(elDialog);
 
         /// funzioni interne ///
 
         function onKeyDown(event) {
             event.preventDefault();
-            event.stopPropagation();
+            // event.stopPropagation();
             switch (event.keyCode || event.which) {
                 case 13: // enter
                 case 39: // arraow right
@@ -310,6 +328,9 @@
 
             var step = stepList[index];
             elDialogTitle.innerHTML = nvl(resolveFunctionOrValue(options.title, instance, index, step), '');
+            if (options.showStepCounter) {
+                elDialogStepCounter.innerHTML = formatStepCounter(resolveFunctionOrValue(options.showStepCounter, instance), index, stepList.length);
+            }
             elDialogBody.innerHTML = nvl(resolveFunctionOrValue(step.content, instance, index, step), '');
             elDialog.classList.toggle('guideme-start', index === 0);
             elDialog.classList.toggle('guideme-end', index === stepList.length - 1);
@@ -377,7 +398,8 @@
             options.attachTo.removeChild(elDialog);
             options.attachTo.classList.remove('guideme', 'guideme-show');
             stepList = elBody = elOverloay = elDialog =
-                elDialogTitle = elDialogBody = elDialogFooter =
+                elDialogTitle = elDialogStepCounter =
+                elDialogBody = elDialogFooter =
                 null;
         }
 

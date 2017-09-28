@@ -1,6 +1,6 @@
 {
   "name": "guideme",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Guide for web app",
   "main": "src/guideme.js",
   "scripts": {
@@ -14,10 +14,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "popper.js": "^1.11.1"
+    "popper.js": "^1.12.5"
   },
   "devDependencies": {
-    "css-loader": "^0.28.5",
+    "css-loader": "^0.28.7",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^0.11.2",
     "html-loader": "^0.5.1",

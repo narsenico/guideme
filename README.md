@@ -39,22 +39,31 @@ https://codepen.io/narsenico/pen/EvbXKB
 
 ##### GuideMe
 (*Function*)
-usage: GuideMe(options)
-return: GuideMeController
+###### Usage
+GuideMe(options)
+###### Return
+GuideMeController
 
 ##### Options
 (*Object*)
+###### Properties
 `attachTo`: (*String|Object*) Where to attach the dialog element. Can be HTMLElement, css selector, jQuery object or null (body). Default **null**.
+
 `classes`: (*String*) List of space separated classes. Additional css classes for dialog and overlay element.
 title: null,
-`destroyOnDone`: (*Boolean*) Clean GuideMe internal references and remove dialog and overlay elements from DOM. Default **false**.
+
+`destroyOnDone`: (*Boolean*) Clean GuideMe internal references and remove dialog and overlay elements from DOM. Default **true**.
+
 `allowKeyboardNavigation`: (*Boolean*) Allow steps navigation through keboard. Default **true**.
     - left arrow|back: go to previous step
     - right arrow|enter: go to next step
     - esc: terminate guide
+
 `showOverlay`: (*Boolean*) Show overlay layer. Default **true**.
+
 `overlayClickAction`: (*String*) [Action](#actions) performed when clicking on overlay layer. Default '**done**'.
-buttons: (*Array*) An array of Object representing buttons showed on guide dialog. Every button object must have two properties: text and [action](#actions).
+
+`buttons`: (*Array*) An array of Object representing buttons showed on guide dialog. Every button object must have two properties: text and [action](#actions).
 Default:
 ```js
 [{ "text": "done", "action": "done" },
@@ -63,9 +72,9 @@ Default:
 ```
 
 ##### Actions
-prev: go to previous step
-next: go to next step
-done: exit guide
+- prev: go to previous step  
+- next: go to next step
+- done: exit guide
 
 ##### GuideMeController: 
 (*Object*)
