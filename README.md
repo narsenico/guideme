@@ -1,12 +1,8 @@
 # guideme
 
-### Demo
-https://codepen.io/narsenico/pen/EvbXKB
+[![GitHub version](https://badge.fury.io/gh/narsenico%2Fguideme.svg)](https://badge.fury.io/gh/narsenico%2Fguideme) [![npm version](https://badge.fury.io/js/guideme.svg)](https://badge.fury.io/js/guideme) [![ISC License](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE.md) [![live demo](https://img.shields.io/badge/demo-codepen-yellow.svg)](https://codepen.io/narsenico/pen/EvbXKB)
 
-### Repository
-https://github.com/narsenico/guideme
-
-### Usage
+## Usage
 1. Include `guideme-bundle.min.js`
     ```html
     <script type="text/javascript" src="guideme-bundle.min.js"></script>
@@ -31,26 +27,30 @@ https://github.com/narsenico/guideme
     ```js
     GuideMe().from('body').start();
     ```
-### Dependencies
+## Dependencies
 [popper.js](https://github.com/FezVrasta/popper.js)
 
-### Advanced usage
+## Reference
 
-##### Theming
-
-### Reference
-
-##### GuideMe (*Function*)
-###### Usage
-GuideMe(options)
-###### Return
+#### GuideMe (*Function*)
+##### Usage
+```js
+// GuideMe(options)
+GuideMe({ title: 'Take a tour', destroyOnDone: true })
+    .from('body')
+    .addStep('Finish!')
+    .start();
+```
+##### Return
 GuideMeController
 
-##### Options (*Object*)
-###### Properties
+#### Options (*Object*)
+##### Properties
 `attachTo`: (*String|Object*) Where to attach the dialog element. Can be HTMLElement, css selector, jQuery object or null (body). Default **null**.
 
 `classes`: (*String*) List of space separated classes. Additional css classes for dialog and overlay element. Default: **null**.
+
+`title`: (*String*) Text to be displayed on header. Default: **null**.
 
 `destroyOnDone`: (*Boolean*) If true, automatically calls the *destroy()* function at the end of the guide. Default **false**.
 
@@ -60,6 +60,8 @@ GuideMeController
 - esc: terminate guide
 
 `showOverlay`: (*Boolean*) Show overlay layer. Default **true**.
+
+`showStepCounter`: (*Boolean*) Show step counter on header. Default **false**.
 
 `overlayClickAction`: (*String*) [Action](#actions) performed when clicking on overlay layer. Default '**done**'.
 
@@ -71,17 +73,17 @@ Default:
  { "text": "next", "action": "next" }]
 ```
 
-##### Actions
+#### Actions
 - prev: go to previous step  
 - next: go to next step
 - done: exit guide
 
-##### GuideMeController (*Object*)
-###### Properties
+#### GuideMeController (*Object*)
+##### Properties
 `stepCount`: (*Number*) Number of steps. Read-only.  
 `stepIndex`: (*Number*) Current step index. Read-only.
 
-###### Methods
+##### Methods
 `from(selector)`: Search for elements with [data-guideme] attribute, based on passed argument and make a list of [Step](#Step) with them. Each Step will have *content* property filled with the value of [data-guideme] attribute (if empty will be used *title* attribute), and *order* with [data-guideme-order]. Return: *GuideMeController*.
 Selector can be:
 - HTMLElement
@@ -101,16 +103,19 @@ Step can be:
 
 `destroy()`: Clean GuideMe internal references and remove dialog and overlay elements from DOM. Return: *GuideMeController*.
 
-onStep
+`onStep(callback)`: Call the *callback* function at every step. Return: *GuideMeController*.
 
-onDone
+`onDone(callback)`: Call the *callback* function at the end of the guide. Return: *GuideMeController*.
 
-stapAt
+`stapAt(index)`: Return the Step object at the specified *index*. Return: *[Step](#Step)*.
 
-##### Step (*Object*)
-###### Properties
+#### Step (*Object*)
+##### Properties
 target: (*HTMLElement*)
 
 content: (*String|Function*)
 
 order: (*Number*)
+
+## Theming
+See [guideme-theme.css](src/guideme-theme.css) for an example.
